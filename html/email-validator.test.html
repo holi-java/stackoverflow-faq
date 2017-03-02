@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Email validator</title>
+    <script src="../node_modules/jquery/dist/jquery.js"></script>
+    <script src="../js/libs/email-validator.js"></script>
+    <style>
+        #status {
+            width: 100%;
+            height: 20px;
+        }
+
+        .failed {
+            background: red;
+        }
+
+        .pass {
+            background: green;
+        }
+
+        #errors {
+            color: red;
+            height: 25px;
+            line-height: 25px;
+        }
+    </style>
+</head>
+<body>
+<form>
+    <label>
+        <div>
+            <div id="status"></div>
+            <div id="errors"></div>
+        </div>
+        <div>Email:</div>
+        <input type="text" name="email" id="email">
+    </label>
+    <br>
+    <button id="sent" disabled>Send</button>
+</form>
+<script>
+    $('input').keyup(function () {
+        var errors = validate($(this).val());
+        var pass = !errors.length;
+
+        $('#status').removeClass().addClass(pass ? 'pass' : 'failed');
+        $('#errors').html(pass ? '' : ('Email missing ' + errors.join(', ') + ' !'));
+        $('#sent').prop('disabled', pass ? '' : 'disabled');
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>time elapsed between two keys pressed</title>
+    <script src="../node_modules/jquery/dist/jquery.js"></script>
+</head>
+<body>
+<label>
+    <h2>Please input something to test!</h2>
+    <input id="in"/>
+</label>
+
+<script>
+    function duration(timestamps) {
+        var last = timestamps.pop();
+        var durations = [];
+        while (timestamps.length) {
+            durations.push(last - (last = timestamps.pop()));
+        }
+        return durations.reverse();
+    }
+
+    function display(mills) {
+        if (mills > 1000)
+            return (mills / 1000) + ' s';
+        return mills + ' ms';
+    }
+
+    var durations = [];
+
+    $('#in').keydown(function (e) {
+        durations.push($.now());
+    }).keyup(function (e) {
+        var current = durations;
+        current.push($.now());
+        durations = [];
+        var timeElapsed = current[current.length - 1] - current[0];
+
+        console.log([
+            ['time elapsed:', display(timeElapsed)].join(' '),
+            ['keys duration:', duration(current).map(display)].join(' ')
+        ].join(' --- '));
+    });
+</script>
+</body>
+</html>

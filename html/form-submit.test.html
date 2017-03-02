@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="../node_modules/jquery/dist/jquery.js"></script>
+</head>
+<body>
+
+<h2>1 way to prevent form to submit via onsubmit attribute</h2>
+<form action="#submit-from-1-way" onsubmit="return validate(this)"><!--set onsubmit="return false"-->
+    <input name="value"/>
+    <button type="submit">Submit</button>
+</form>
+
+<h2>2 way to prevent form to submit via submit event</h2>
+<form id="form" action="#submit-from-2-way"><!--set onsubmit="return false"-->
+    <input name="value"/>
+    <button type="submit">Submit</button>
+</form>
+
+
+<script>
+
+    function validate(form) {
+        return $(form).find('input').val();
+    }
+
+    $('#form').submit(function (e) {
+        if (!validate(this)) e.preventDefault();
+    });
+</script>
+</body>
+</html>
