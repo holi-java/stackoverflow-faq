@@ -8,7 +8,8 @@
     "jest": "^19.0.2"
   },
   "scripts": {
-    "test": "node $NODE_DEBUG_OPTION node_modules/jest/bin/jest.js"
+    "all-tests": "node $NODE_DEBUG_OPTION node_modules/jest/bin/jest.js",
+    "test": "node $NODE_DEBUG_OPTION node_modules/jest/bin/jest.js @.*test.js$"
   },
   "keywords": [],
   "author": "",
