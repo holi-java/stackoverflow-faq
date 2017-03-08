@@ -14,8 +14,7 @@
                 $(this).addClass('active');
             });
             $('.content').mouseup(function () {
-                var current = self.actived();
-                if (current.hasClass('clear')) {
+                if (self.actived().hasClass('clear')) {
                     self.clear();
                 } else {
                     self.highlight();
@@ -34,8 +33,7 @@
          */
         highlight: function () {
             var self = this;
-            var selection = self.getSelection();
-            if (selection) {
+            self.run(function (selection) {
                 self.select(selection.getRangeAt(0)).//
                 then(merge(function (left, right) {
                     var p1 = left.parentNode;
@@ -57,7 +55,7 @@
                     console.log(e);
                 });
                 selection.removeAllRanges();
-            }
+            });
         },
         component: function () {
             return $('<span data-toggle="' + COMPONENT_ID + '">').css('background-color', this.color()).get(0);
@@ -74,8 +72,7 @@
         },
         clear: function () {
             var self = this;
-            var selection = self.getSelection();
-            if (selection) {
+            self.run(function (selection) {
                 self.select(selection.getRangeAt(0)).then(apply(function (part) {
                     var text = $(part.split().node);
                     while (true) {
@@ -103,8 +100,7 @@
                         if (first == last) comp.remove();
                     }
                 }));
-                selection.removeAllRanges();
-            }
+            });
         },
         select: function (range) {
             return select(
@@ -112,9 +108,12 @@
                 {text: range.endContainer, offset: range.endOffset}
             );
         },
-        getSelection: function () {
-            var sel = window.getSelection();
-            return /^\s*$/.test(self && sel.toString()) ? null : sel;
+        run: function (callback) {
+            var selection = window.getSelection();
+            if (!/^\s*$/.test(selection && selection.toString())) {
+                callback.call(this, selection);
+                selection.removeAllRanges();
+            }
         }
     };
 
