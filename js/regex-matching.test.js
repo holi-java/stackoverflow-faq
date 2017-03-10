@@ -76,3 +76,153 @@ describe('strings', () => {
         expect(strings(source)).toEqual(['abc', '111', 'ddd ee', 'ffff', '123 45', 'end']);
     });
 });
+
+
+describe('replace variables', function () {
+    function format(tpl, binding) {
+        if (typeof binding != 'function') return format(tpl, function (_, name) {
+            return binding[name];
+        });
+        return tpl.replace(/\$(\w+)/g, binding);
+    }
+
+    const tpl = "<a href='$site/$path'>$path</a>";
+    const options = {site: 'example.com', path: 'home'};
+
+    it('replace with lazy binding function', () => {
+        let link = format(tpl, function (_, name) {
+            return options[name];
+        });
+
+        expect(link).toEqual("<a href='example.com/home'>home</a>");
+    });
+
+    it('replace with variables binding', () => {
+        expect(format(tpl, options)).toEqual("<a href='example.com/home'>home</a>");
+    });
+});
+
+
+function merge(url, params, rest) {
+    var params = typeof params == 'object' ? params : Object.defineProperty({}, params, {
+                enumerable: true,
+                value: rest
+            }),
+        parts = url.split(/\?/), host = parts.shift(), query = parts.join(''),
+        regSymbols = /[.?*+^$[\]\\(){}|-]/g;
+
+    for (var name in params) {
+        var value = encodeURIComponent(params[name]),
+            rawName = name.replace(regSymbols, "\\$&"),
+            name = encodeURIComponent(name);
+
+        var ret = query.replace(new RegExp('((?:^|&)(?:' + (name + '|' + rawName) + ')=)([\\w%]+)'), "$1" + value);
+
+        query = ret != query ? ret : [query, name + "=" + value].join(query ? '&' : '');
+    }
+
+    return query ? host + '?' + query : host;
+}
+
+describe('merge parameter', () => {
+
+    it('starts with ?', () => {
+        expect(merge('www.example.com?foo=bar', 'foo', 'baz'))
+            .toEqual('www.example.com?foo=baz');
+    });
+
+    it('starts with &', () => {
+        expect(merge('www.example.com?id=1&foo=bar', 'foo', 'baz'))
+            .toEqual('www.example.com?id=1&foo=baz');
+    });
+
+    it('no params', () => {
+        expect(merge('www.example.com', 'foo', 'baz'))
+            .toEqual('www.example.com?foo=baz');
+    });
+
+    it('add param if param is missing', () => {
+        expect(merge('www.example.com?id=1', 'foo', 'baz'))
+            .toEqual('www.example.com?id=1&foo=baz');
+    });
+
+    it('merge encoded param value', () => {
+        expect(merge('www.example.com?foo=bar%20baz', 'foo', 'baz'))
+            .toEqual('www.example.com?foo=baz');
+    });
+
+    it('merge encoded param name', () => {
+        expect(merge('www.example.com?foo%20value=bar', 'foo value', 'baz'))
+            .toEqual('www.example.com?foo%20value=baz');
+    });
+
+    it('merge with encoded param', () => {
+        expect(merge('www.example.com?foo=bar', 'foo', 'bar baz'))
+            .toEqual('www.example.com?foo=bar%20baz');
+    });
+
+    it('add encoded param', () => {
+        expect(merge('www.example.com', 'foo', 'bar baz'))
+            .toEqual('www.example.com?foo=bar%20baz');
+    });
+
+    it('merge multi-params', () => {
+        expect(merge('www.example.com', {foo: 'bar', fuzz: 'buzz'}))
+            .toEqual('www.example.com?foo=bar&fuzz=buzz');
+    });
+
+    it('return URL must be consistent when replace url with empty params if url with no params', () => {
+        expect(merge('www.example.com', {}))
+            .toEqual('www.example.com');
+    });
+
+    it('merge param with brackets', () => {
+        expect(merge('www.example.com?[foo]=bar', '[foo]', 'baz'))
+            .toEqual('www.example.com?[foo]=baz');
+    });
+});
+
+
+describe('matching address', () => {
+    const regex = /^Newsletter pour (?:\s*(\w+(?: \w+)*) )?<?((\S+)@(([^.]+)\.[^>]+))>?\s*$/i;
+
+
+    test('address without header', () => {
+        let result = "Newsletter pour ome@yahoo.com".match(regex);
+
+        expect(result[1]).toBeUndefined();
+        expect(result[2]).toEqual('ome@yahoo.com');
+        expect(result[3]).toEqual('ome');
+        expect(result[4]).toEqual('yahoo.com');
+        expect(result[5]).toEqual('yahoo');
+    });
+
+    test('email without sharps', () => {
+        let result = "Newsletter pour ome ome@yahoo.com".match(regex);
+        expect(result[1]).toEqual('ome');
+        expect(result[2]).toEqual('ome@yahoo.com');
+    });
+
+    test('email enclosed with sharps', () => {
+        let result = "Newsletter pour ome <ome@yahoo.com>".match(regex);
+
+        expect(result[1]).toEqual('ome');
+        expect(result[2]).toEqual('ome@yahoo.com');
+    });
+
+    test('header includes whitespaces', () => {
+        let result = "Newsletter pour ome sanni john ome@yahoo.com".match(regex);
+
+        expect(result[1]).toEqual('ome sanni john');
+        expect(result[2]).toEqual('ome@yahoo.com');
+    });
+
+    test('header includes whitespaces & email eclosed with sharps', () => {
+        let result = "Newsletter pour ome sanni john <ome@yahoo.com>".match(regex);
+
+        expect(result[1]).toEqual('ome sanni john');
+        expect(result[2]).toEqual('ome@yahoo.com');
+    });
+});
+
+

@@ -1,0 +1,53 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN""http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>Documento sin título</title>
+    <base href="http://www.matrimoniintenerife.it/couple/" />
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="resources/demos/style.css">
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <link href="http://www.testingserver.dev/css/responsive-grid.css" rel="stylesheet" type="text/css"/>
+</head>
+
+<body>
+<div id="wrapper"><h2>INTRODUCE TUS DATOS</h2>
+    <div>
+        <form id="form1" name="form1" method="post" action="/couple/php/create-page.php">
+
+            <div>Nombre del novio: *<br/><label for="groom-name"></label>
+                <input class="required" type="text" name="groom-name" id="groom-name"/></div>
+            <div>Nombre de la novia: *<br/><label for="bride-name"></label>
+                <input class="required" type="text" name="bride-name" id="bride-name"/></div>
+            <div>Fecha: *<br/><label for="wedding-date"></label>
+                <input class="required" type="text" name="wedding-date" id="wedding-date"/></div>
+            <div>Correo: <br/><label for="email"></label>
+                <input type="text" name="email" id="email"/></div>
+            <div>
+                <input type="submit" name="button" id="button" value="Enviar"/>
+            </div>
+
+
+        </form>
+    </div>
+</div>
+</body>
+</html>
+
+<script>
+    // Datepicker.
+    $(function () { /* Prevent select past dates */
+        $('#wedding-date').datepicker({minDate: 0});
+        /* Makes input "Readonly" and prevents manual input. */
+        $('#wedding-date').prop('readonly', true);
+        /* Date format. */
+        $('#wedding-date').datepicker('option', 'dateFormat', 'dd-mm-yy');
+    });
+    // Validation.
+    $('#form1').submit(function () {
+        var isFormValid = $('.required').removeClass('highlight').filter(function () { return $.trim(this.value) == '';}).addClass('highlight').length == 0;
+        if (!isFormValid) { alert('Please fill in all the required fields (indicated by *)'); }
+        return isFormValid;
+    });
+</script>
